@@ -6,7 +6,7 @@
 
     <groupId>at.haha007</groupId>
     <artifactId>EdenCommands</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1</version>
     <packaging>jar</packaging>
 
     <name>EdenCommands</name>
@@ -58,6 +58,7 @@
     </repositories>
 
     <dependencies>
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -74,13 +75,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.9.2</version>
+            <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.2.0</version>
+            <version>5.4.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
