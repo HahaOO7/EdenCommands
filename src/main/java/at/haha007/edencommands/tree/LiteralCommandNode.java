@@ -33,7 +33,7 @@ public final class LiteralCommandNode extends CommandNode {
                                CommandExecutor defaultExecutor,
                                boolean ignoreCase) {
         super(List.copyOf(children), executor, requirement, defaultExecutor);
-        this.literal = literal.toLowerCase();
+        this.literal = literal;
         this.tooltip = tooltip;
         this.ignoreCase = ignoreCase;
     }

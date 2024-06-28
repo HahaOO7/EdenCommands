@@ -15,7 +15,9 @@ import org.mockito.Mockito;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 //A commandRegistry fake
@@ -23,8 +25,9 @@ import java.util.logging.Logger;
 public class EdenCommandsTestBase {
     private final CommandRegistry commandRegistry;
     private final CommandMap commandMap;
-    protected final JavaPlugin plugin = Mockito.mock(JavaPlugin.class);
-    protected final Logger testLogger = Logger.getLogger(getClass().getSimpleName());
+    private final JavaPlugin plugin = Mockito.mock(JavaPlugin.class);
+    private final Logger testLogger = Logger.getLogger(getClass().getSimpleName());
+    private final Set<Thread> threads = new HashSet<>();
 
     public EdenCommandsTestBase() {
         Server mockServer = Mockito.mock(Server.class);
@@ -41,7 +44,13 @@ public class EdenCommandsTestBase {
         BukkitScheduler mockScheduler = Mockito.mock(BukkitScheduler.class);
         Mockito.when(mockScheduler.runTaskAsynchronously(Mockito.any(JavaPlugin.class), Mockito.any(Runnable.class)))
                 .thenAnswer(i -> {
-                    i.getArgument(1, Runnable.class).run();
+                    Runnable runnable = () -> {
+                        i.getArgument(1, Runnable.class).run();
+                        threads.remove(Thread.currentThread());
+                    };
+                    Thread thread = new Thread(runnable);
+                    threads.add(thread);
+                    thread.start();
                     return null;
                 });
         Mockito.when(mockServer.getScheduler()).thenReturn(mockScheduler);
@@ -63,7 +72,7 @@ public class EdenCommandsTestBase {
     public List<AsyncTabCompleteEvent.Completion> simulateCompletion(CommandSender sender, String command) {
         AsyncTabCompleteEvent event = new AsyncTabCompleteEvent(
                 sender,
-                command,
+                 "/" + command,
                 true,
                 new Location(null, 0, 0, 0)
         );
@@ -85,4 +94,21 @@ public class EdenCommandsTestBase {
         return commandRegistry;
     }
 
+    public JavaPlugin plugin() {
+        return plugin;
+    }
+
+    public Logger testLogger() {
+        return testLogger;
+    }
+
+    public void awaitAsyncCommandExecutions() {
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
